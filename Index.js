@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import userRouter from './modules/user/index.js'
+import todoRouter from "./modules/planner/index.js"
 
 dotenv.config();
 const app = express()
@@ -10,6 +11,7 @@ app.use(express.json())
 app.use(cors())
 
 app.use('/user',userRouter)
+app.use('/planner',todoRouter)
 
 app.get('/',(req,res)=>{
     res.send('Hello World')
