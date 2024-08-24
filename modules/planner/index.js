@@ -9,8 +9,8 @@ router.get("/", getTodoController);
 
 router.post("/", createTodoController);
 
-router.patch("/:taskid", markTodoCompleteController);
+router.patch("/:taskId", markTodoCompleteController);
 
-router.delete("/:taskid", markTodoDeleteController);
+router.delete("/:taskId", markTodoDeleteController);
 
 export default router;

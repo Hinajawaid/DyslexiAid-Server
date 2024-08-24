@@ -29,54 +29,49 @@ export const addTodo = async (
   }
 };
 
-export const fetchTodos = async(userId) =>{
-    try{
-        const todos = await Todo.find({userId});
-        return {
-            status: true,
-            todos
-        };
-    }
-    catch(error){
-        throw new Error(error.message);
-    }
-}
+export const fetchTodos = async (userId) => {
+  try {
+    const todos = await Todo.find({ userId });
+    return {
+      status: true,
+      todos,
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
-export const deleteUserTodo = async (taskId) =>{
-    try{
-        const todo = await Todo.findOneAndDelete({taskId})
+export const deleteUserTodo = async (taskId) => {
+  try {
+    const todo = await Todo.findOneAndDelete({ _id:taskId });
 
-        if(!todo){
-            throw new Error("Task not found");
-        }
-        return {
-            status:true,
-            todo
-        }
+    if (!todo) {
+      throw new Error("Task not found");
     }
-    catch(error){
-        throw new Error(error.message);
+    return {
+      status: true,
+      todo,
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+export const markTodoComplete = async (taskId) => {
+  try {
+    const todo = await Todo.findOne({ _id:taskId });
+
+    if (!todo) {
+      throw new Error("Task not found");
     }
-}
-export const markTodoComplete = async (taskId) =>{
-    try{
-        const todo = await Todo.findOne({taskId})
 
-        if(!todo){
-            throw new Error("Task not found");
-        }
+    todo.completed = true;
+    await todo.save();
 
-        todo.completed = true
-        await todo.save()
-
-        
-        return {
-            status:true,
-            todo
-        }
-    }
-    catch(error){
-        throw new Error(error.message);
-    }
-}
-
+    return {
+      status: true,
+      todo,
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
