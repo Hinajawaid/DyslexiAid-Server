@@ -1,5 +1,5 @@
 import express from 'express'
-import { signUpController,loginController,updateUserController,logoutController } from './user.controller.js'
+import { signUpController,loginController,updateUserController,logoutController, googleSignInController } from './user.controller.js'
 import { auth } from '../../middleware/auth.js'
 
 const router =express.Router()
@@ -19,6 +19,7 @@ router.patch('/update',auth,updateUserController)
 router.post('/logout', logoutController);
 
 
+router.post('/google', googleSignInController); // Add Google Sign-In route
 
 
 

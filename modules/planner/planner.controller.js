@@ -1,4 +1,5 @@
 import { addTodo, fetchTodos, markTodoComplete, deleteUserTodo  } from "./planner.service.js";
+
 export const createTodoController = async (req, res) => {
   try {
     const { name, description, category, priority, date } = req.body;
@@ -9,7 +10,7 @@ export const createTodoController = async (req, res) => {
 
     // const userId = req.user.id;
 
-    const userId = "66bd1e2b0917628d841c5041"
+    const userId = "6748372a8da544e808d748ea"
 
     const response = await addTodo(
       name,
@@ -30,7 +31,7 @@ export const getTodoController = async (req, res) => {
 
     // const userId = req.user.id;
 
-    const userId = "66bd1e2b0917628d841c5041"
+    const userId = "6748372a8da544e808d748ea"
   try {
     const response = await fetchTodos(userId);
 
@@ -45,7 +46,7 @@ export const markTodoDeleteController = async (req, res) => {
 
     // const userId = req.user.id;
 
-    const userId = "66bd1e2b0917628d841c5041"
+    const userId = "6748372a8da544e808d748ea"
   try {
     const response = await deleteUserTodo(taskId);
     res.json(response);
@@ -59,7 +60,7 @@ export const markTodoCompleteController = async (req, res) => {
 
     // const userId = req.user.id;
 
-    const userId = "66bd1e2b0917628d841c5041"
+    const userId = "6748372a8da544e808d748ea"
   try {
     const response = await markTodoComplete(taskId);
     res.status(200).json(response);
