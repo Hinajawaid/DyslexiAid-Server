@@ -5,6 +5,11 @@ import cors from "cors";
 import userRouter from "./modules/user/index.js";
 import todoRouter from "./modules/planner/index.js";
 import spellingGameRouter from "./modules/spellingGame/index.js";
+import phonicsRoutes from "./modules/phonicsGame/index.js";
+import audioRoutes from "./modules/audio/index.js";
+import axios from "axios";
+import bodyParser from "body-parser";
+
 
 dotenv.config();
 const app = express();
@@ -12,20 +17,36 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:3000", // Allow requests from frontend
-    methods: "POST",
+    origin: "*", // Allow requests from frontend
+    methods: "GET,POST",
     allowedHeaders: "Content-Type, Authorization",
   })
 );
 app.use("/user", userRouter);
 app.use("/planner", todoRouter);
 app.use("/spelling", spellingGameRouter);
+app.use("/phonics", phonicsRoutes)
+app.use("/audio", audioRoutes);
+console.log("Audio routes mounted at /audio");
+app.use(bodyParser.json());
+
 
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-const port = process.env.PORT || 3000;
+async function testFastAPI() {
+  try {
+    const response = await axios.get("http://172.20.5.197:4000/");
+    console.log(response.data);
+  } catch (error) {
+    console.error("Error connecting to FastAPI:", error.message);
+  }
+}
+
+testFastAPI();
+
+const port = process.env.PORT || 4000;
 const db_url = process.env.MONGODB_URL;
 
 console.log(db_url);
