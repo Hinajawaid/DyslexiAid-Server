@@ -5,6 +5,7 @@ import cors from "cors";
 import userRouter from "./modules/user/index.js";
 import todoRouter from "./modules/planner/index.js";
 import spellingGameRouter from "./modules/spellingGame/index.js";
+import textToSpeechRouter from "./modules/textToSpeech/index.js";
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,7 @@ app.use(
 app.use("/user", userRouter);
 app.use("/planner", todoRouter);
 app.use("/spelling", spellingGameRouter);
+app.use("/textToSpeech", textToSpeechRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
@@ -41,3 +43,8 @@ mongoose
   .catch((error) => {
     console.log(error);
   });
+
+// mongoose
+//   .connect(db_url)
+//   .then(() => console.log("Connected to MongoDB"))
+//   .catch((err) => console.error("MongoDB connection error:", err));
