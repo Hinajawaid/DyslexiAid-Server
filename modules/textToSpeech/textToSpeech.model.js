@@ -13,7 +13,7 @@ const textToSpeechSchema = mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamp: { type: Date, default: Date.now }, // Automatically adds createdAt and updatedAt fields
   }
 );
 

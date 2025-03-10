@@ -21,7 +21,11 @@ const userSchema = mongoose.Schema(
     age:{
         type:Number,
         default:0,        
-    }
+    },     
+    profilePicture: {
+      type: String,
+      default: "", // Default avatar URL or leave it empty
+    },
   },
   {
     timestamps: true,

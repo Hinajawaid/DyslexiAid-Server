@@ -31,6 +31,8 @@
 import polly from "./awsConfig.js";
 import { SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import TextDocument from "./textToSpeech.model.js";
+import mongoose from "mongoose";
+
 export const textToSpeech = async (req, res) => {
   try {
     const { text } = req.body;
@@ -114,5 +116,49 @@ export const saveDoc = async (req, res) => {
   } catch (error) {
     console.error("Error saving document:", error);
     res.status(500).json({ error: "Error saving document" });
+  }
+};
+
+export const getSavedText = async (req, res) => {
+  try {
+    const textDoc = await TextDocument.find();
+    res.json(textDoc);
+  } catch (error) {
+    console.error("Error fetching transcriptions:", error);
+    res.status(500).json({ error: "Failed to fetch transcriptions" });
+  }
+};
+
+export const deleteTextFile = async (req, res) => {
+  try {
+    const { fileId } = req.params;
+    console.log(`Received request to delete file with ID: ${fileId}`);
+
+    if (!mongoose.Types.ObjectId.isValid(fileId)) {
+      console.log("❌ Invalid ObjectId format");
+      return res.status(400).json({ error: "Invalid file ID" });
+    }
+
+    const file = await TextDocument.findById(fileId);
+    if (!file) {
+      console.log("File not found in database");
+      return res.status(404).json({ error: "File not found" });
+    }
+
+    console.log("Deleting files:", file.title, file.content);
+
+    // // Ensure files exist before deleting
+    // if (fs.existsSync(file.filePath)) fs.unlinkSync(file.filePath);
+    // if (fs.existsSync(file.pdfPath)) fs.unlinkSync(file.pdfPath);
+
+    await TextDocument.findByIdAndDelete(fileId); // Remove from DB
+    console.log("File deleted successfully");
+
+    res.json({ success: true, message: "File deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting file:", error); // Log detailed error
+    res
+      .status(500)
+      .json({ error: "Error deleting file", details: error.message });
   }
 };
