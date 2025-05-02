@@ -21,7 +21,7 @@ export const transcribeAudio = async (req, res) => {
     console.log("Form data:", formData);
 
     const whisperResponse = await axios.post(
-      "http://10.113.78.208:5000/transcribe/",
+      "http://192.168.1.8:5000/transcribe/",
       formData,
       { headers: formData.getHeaders() }
     );
@@ -135,63 +135,3 @@ export const deleteFile = async (req, res) => {
   }
 };
 
-
-// Get all saved transcriptions
-// export const getTranscriptions = async (req, res) => {
-//   try {
-//     const transcriptions = await Transcription.find().sort({ timestamp: -1 }); // Fetch latest first
-//     res.json(transcriptions);
-//   } catch (error) {
-//     console.error("Error fetching transcriptions:", error.message);
-//     res.status(500).json({ error: "Failed to fetch transcriptions" });
-//   }
-// };
-
-// let gfs;
-// conn.once("open", () => {
-//   gfs = Grid(conn.db, mongoose.mongo);
-//   gfs.collection("pdfs");
-// });
-
-// // Set up storage for PDFs
-// const storage = new GridFsStorage({
-//   url: mongoURI,
-//   file: (req, file) => {
-//     return {
-//       bucketName: "pdfs",
-//       filename: `${Date.now()}-${file.originalname}`,
-//     };
-//   },
-// });
-
-// const upload = multer({ storage });
-
-// export const savePDF = (req, res) => {
-//   try {
-//     res.json({ message: "File uploaded successfully!", file: req.file });
-//   } catch (error) {
-//     res.status(500).json({ error: "Failed to save file" });
-//   }
-// };
-
-// export const getSavedNotes = async (req, res) => {
-//   try {
-//     const files = await gfs.files.find().toArray();
-//     res.json(files);
-//   } catch (error) {
-//     res.status(500).json({ error: "Failed to retrieve notes" });
-//   }
-// };
-
-// export const getFile = async (req, res) => {
-//   try {
-//     const file = await gfs.files.findOne({ filename: req.params.filename });
-//     if (!file) {
-//       return res.status(404).json({ error: "File not found" });
-//     }
-//     const readStream = gfs.createReadStream(file.filename);
-//     readStream.pipe(res);
-//   } catch (error) {
-//     res.status(500).json({ error: "Failed to retrieve file" });
-//   }
-// };

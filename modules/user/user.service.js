@@ -6,39 +6,31 @@ import axios from "axios";
 import dotenv from "dotenv";
 import { OAuth2Client } from "google-auth-library";
 
-
 dotenv.config();
 
-// Initialize Google OAuth2 client
-const client = new OAuth2Client('395850754998-0sja28p7bcsdf0686euv44jcvfnjfenm.apps.googleusercontent.com'); // Replace with your Google Client ID
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Google Sign-In service
-export const signUpWithGoogle = async (googleToken) => {
+export const googleSignInService = async (googleToken) => {
   try {
-    // Verify the Google ID token
     const ticket = await client.verifyIdToken({
       idToken: googleToken,
-      audience: '395850754998-0sja28p7bcsdf0686euv44jcvfnjfenm.apps.googleusercontent.com', // Replace with your Google Client ID
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
-
     const payload = ticket.getPayload();
     const { email, name, picture } = payload;
 
-    // Check if the user already exists
     let user = await User.findOne({ email });
 
     if (!user) {
-      // Create a new user if they don't exist
       user = new User({
         name,
         email,
-        profilePicture: picture, // Optional: Save the profile picture URL
-        provider: 'google', // Indicate that the user signed up via Google
+        profilePicture: picture,
+        googleId: payload.sub,
       });
       await user.save();
     }
 
-    // Generate a JWT token for the user
     const token = jwt.sign(
       { email: user.email, id: user._id },
       process.env.SECRET
@@ -53,11 +45,96 @@ export const signUpWithGoogle = async (googleToken) => {
   }
 };
 
-//signup service
+// //before admin
+// //signup service
+// export const signUp = async (name, email, password) => {
+//   try {
+//     const oldUser = await User.findOne({ email });
+//     if (oldUser) return { error: true, message: "Email already Exists" };
+
+//     // if (oldUser) return { error: "Email already Exists" };
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+//     console.log("Original Password:", password);
+// console.log("Hashed Password:", hashedPassword);
+
+//     const newUser = new User({
+//       name,
+//       email,
+//       password: hashedPassword,
+//     });
+//     await newUser.save();
+
+//     const token = jwt.sign(
+//       { email: newUser.email, id: newUser._id },
+//       process.env.SECRET
+//     );
+
+//     newUser.token = token;
+//     await newUser.save();
+
+//     return token;
+//   } catch (error) {
+//     return {
+//       error: true,
+//       message: error.message,
+//     };
+//   }
+// };
+
+
+//works admin
+// export const signUp = async (name, email, password) => {
+//   try {
+//     const oldUser = await User.findOne({ email });
+//     if (oldUser) return { error: true, message: "Email already Exists" };
+
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+
+//     const newUser = new User({
+//       name,
+//       email,
+//       password: hashedPassword,
+//     });
+
+//     await newUser.save();
+
+//     const token = jwt.sign(
+//       { email: newUser.email, id: newUser._id },
+//       process.env.SECRET
+//     );
+
+//     newUser.token = token;
+//     await newUser.save();
+
+//     // Return both token and user data
+//     return {
+//       token,
+//       user: {
+//         _id: newUser._id,
+//         name: newUser.name,
+//         email: newUser.email,
+//         // Add other fields as needed
+//       }
+//     };
+//   } catch (error) {
+//     return {
+//       error: true,
+//       message: error.message,
+//     };
+//   }
+// };
+
+//unified and working
 export const signUp = async (name, email, password) => {
   try {
     const oldUser = await User.findOne({ email });
-    if (oldUser) return { error: "Email already Exists" };
+    if (oldUser) return { 
+      error: true, 
+      message: "Email already Exists" 
+    };
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -66,6 +143,7 @@ export const signUp = async (name, email, password) => {
       email,
       password: hashedPassword,
     });
+
     await newUser.save();
 
     const token = jwt.sign(
@@ -76,7 +154,14 @@ export const signUp = async (name, email, password) => {
     newUser.token = token;
     await newUser.save();
 
-    return token;
+    return {
+      token,
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email
+      }
+    };
   } catch (error) {
     return {
       error: true,
@@ -88,11 +173,33 @@ export const signUp = async (name, email, password) => {
 //login service
 
 export const loginService = async (email, password) => {
+  console.log(`Checking user for email: ${email}`); // Log email check
+
   try {
     const user = await User.findOne({ email });
-    if (!user) return { error: "Invalid Email or Password" };
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) return { error: "Invalid Email or Password" };
+    if (!user) {
+      console.log("User not found");
+      return { error: true };
+    }
+
+    console.log(`User found: ${user.email}`); // Confirm user data
+    try {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log("Entered Password:", password);  // Raw password entered
+console.log("Stored Hashed Password:", user.password); // Password from database
+
+      console.log("Password Match Result:", isPasswordValid);
+    
+      if (!isPasswordValid) {
+        console.log("Invalid password");
+        return { error: true };
+      }
+    } catch (error) {
+      console.error("Password comparison error:", error);
+      return { error: true };
+    }
+    
+
     const token = jwt.sign(
       { email: user.email, id: user._id },
       process.env.SECRET
@@ -104,20 +211,6 @@ export const loginService = async (email, password) => {
     return { error: true, message: error.message };
   }
 };
-
-// //update budget service
-
-// export const updateUser = async (userId, age) => {
-//   try {
-//     const user = await User.findById(userId);
-//     if (!user) return { error: "User not found" };
-//     user.age = age;
-//     await user.save();
-//     return user;
-//   } catch (error) {
-//     return { error: true, message: error.message };
-//   }
-// };
 
 export const fetchInfo = async (userId) => {
   try {
@@ -132,12 +225,19 @@ export const fetchInfo = async (userId) => {
   }
 };
 
-
 export const findUserById = async (userId) => {
   return await User.findById(userId).select("-password");
 };
 
-export const updateUserDetails = async (userId, name, email, age, currentPassword, newPassword, profilePicture) => {
+export const updateUserDetails = async (
+  userId,
+  name,
+  email,
+  age,
+  currentPassword,
+  newPassword,
+  profilePicture
+) => {
   const user = await User.findById(userId);
   if (!user) return { status: false, message: "User not found" };
 
@@ -145,7 +245,6 @@ export const updateUserDetails = async (userId, name, email, age, currentPasswor
   user.email = email || user.email;
   user.age = age || user.age;
   user.profilePicture = profilePicture || user.profilePicture;
-
 
   if (currentPassword && newPassword) {
     const match = await bcrypt.compare(currentPassword, user.password);

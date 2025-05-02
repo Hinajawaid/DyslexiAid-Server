@@ -5,12 +5,12 @@ import { getTodoController, createTodoController, markTodoCompleteController, ma
 const router = express.Router();
 
 //get todo controller
-router.get("/", getTodoController);
+router.get("/gettask", auth,getTodoController);
 
-router.post("/", createTodoController);
+router.post("/addtask",auth, createTodoController);
 
-router.patch("/:taskId", markTodoCompleteController);
+router.patch("/:taskId", auth,markTodoCompleteController);
 
-router.delete("/:taskId", markTodoDeleteController);
+router.delete("/:taskId",auth, markTodoDeleteController);
 
 export default router;
