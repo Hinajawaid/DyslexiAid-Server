@@ -45,14 +45,96 @@ export const googleSignInService = async (googleToken) => {
   }
 };
 
-//before admin
-//signup service
+// //before admin
+// //signup service
+// export const signUp = async (name, email, password) => {
+//   try {
+//     const oldUser = await User.findOne({ email });
+//     if (oldUser) return { error: true, message: "Email already Exists" };
+
+//     // if (oldUser) return { error: "Email already Exists" };
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+//     console.log("Original Password:", password);
+// console.log("Hashed Password:", hashedPassword);
+
+//     const newUser = new User({
+//       name,
+//       email,
+//       password: hashedPassword,
+//     });
+//     await newUser.save();
+
+//     const token = jwt.sign(
+//       { email: newUser.email, id: newUser._id },
+//       process.env.SECRET
+//     );
+
+//     newUser.token = token;
+//     await newUser.save();
+
+//     return token;
+//   } catch (error) {
+//     return {
+//       error: true,
+//       message: error.message,
+//     };
+//   }
+// };
+
+
+//works admin
+// export const signUp = async (name, email, password) => {
+//   try {
+//     const oldUser = await User.findOne({ email });
+//     if (oldUser) return { error: true, message: "Email already Exists" };
+
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+
+//     const newUser = new User({
+//       name,
+//       email,
+//       password: hashedPassword,
+//     });
+
+//     await newUser.save();
+
+//     const token = jwt.sign(
+//       { email: newUser.email, id: newUser._id },
+//       process.env.SECRET
+//     );
+
+//     newUser.token = token;
+//     await newUser.save();
+
+//     // Return both token and user data
+//     return {
+//       token,
+//       user: {
+//         _id: newUser._id,
+//         name: newUser.name,
+//         email: newUser.email,
+//         // Add other fields as needed
+//       }
+//     };
+//   } catch (error) {
+//     return {
+//       error: true,
+//       message: error.message,
+//     };
+//   }
+// };
+
+//unified and working
 export const signUp = async (name, email, password) => {
   try {
     const oldUser = await User.findOne({ email });
-    if (oldUser) return { error: true, message: "Email already Exists" };
+    if (oldUser) return { 
+      error: true, 
+      message: "Email already Exists" 
+    };
 
-    // if (oldUser) return { error: "Email already Exists" };
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     console.log("Original Password:", password);
@@ -63,6 +145,7 @@ export const signUp = async (name, email, password) => {
       email,
       password: hashedPassword,
     });
+
     await newUser.save();
 
     const token = jwt.sign(
@@ -73,7 +156,14 @@ export const signUp = async (name, email, password) => {
     newUser.token = token;
     await newUser.save();
 
-    return token;
+    return {
+      token,
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email
+      }
+    };
   } catch (error) {
     return {
       error: true,
@@ -139,11 +229,11 @@ export const loginService = async (email, password) => {
     console.log(`User found: ${user.email}`); // Confirm user data
     try {
       const isPasswordValid = await bcrypt.compare(password, user.password);
-      console.log("Entered Password:", password); // Raw password entered
-      console.log("Stored Hashed Password:", user.password); // Password from database
+      console.log("Entered Password:", password);  // Raw password entered
+console.log("Stored Hashed Password:", user.password); // Password from database
 
       console.log("Password Match Result:", isPasswordValid);
-
+    
       if (!isPasswordValid) {
         console.log("Invalid password");
         return { error: true };
@@ -152,6 +242,7 @@ export const loginService = async (email, password) => {
       console.error("Password comparison error:", error);
       return { error: true };
     }
+    
 
     const token = jwt.sign(
       { email: user.email, id: user._id },
