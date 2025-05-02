@@ -7,6 +7,8 @@ import todoRouter from "./modules/planner/index.js";
 import spellingGameRouter from "./modules/spellingGame/index.js";
 import phonicsRoutes from "./modules/phonicsGame/index.js";
 import audioRoutes from "./modules/audio/index.js";
+import resourcesRouter from "./modules/resources/index.js";
+import gameRouter from "./modules/game/index.js";
 import axios from "axios";
 import bodyParser from "body-parser";
 
@@ -28,25 +30,28 @@ app.use("/planner", todoRouter);
 app.use("/spelling", spellingGameRouter);
 app.use("/phonics", phonicsRoutes);
 app.use("/audio", audioRoutes);
+app.use("/game", gameRouter);
 console.log("Audio routes mounted at /audio");
+app.use("/resources", resourcesRouter);
 app.use(bodyParser.json());
 
 app.use("/textToSpeech", textToSpeechRouter);
+app.use("/uploads", express.static("uploads"));
 
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-async function testFastAPI() {
-  try {
-    const response = await axios.get("http://172.20.5.197:4000/");
-    console.log(response.data);
-  } catch (error) {
-    console.error("Error connecting to FastAPI:", error.message);
-  }
-}
+// async function testFastAPI() {
+//   try {
+//     const response = await axios.get("http://192.168.1.75:4000/");
+//     console.log(response.data);
+//   } catch (error) {
+//     console.error("Error connecting to FastAPI:", error.message);
+//   }
+// }
 
-testFastAPI();
+// testFastAPI();
 
 const port = process.env.PORT || 4000;
 const db_url = process.env.MONGODB_URL;
