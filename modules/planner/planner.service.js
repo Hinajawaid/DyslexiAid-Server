@@ -32,11 +32,14 @@ export const addTodo = async (
 export const fetchTodos = async (userId) => {
   try {
     const todos = await Todo.find({ userId });
+    console.log("Fetched Todos:", todos); // <-- Add this log
+
     return {
       status: true,
-      todos,
-    };
-  } catch (error) {
+      data: { todos }, // Ensure the response structure matches what the frontend expects    };
+  };
+ } catch (error) {
+    console.error("Error fetching todos:", error); // <-- Add this log
     throw new Error(error.message);
   }
 };

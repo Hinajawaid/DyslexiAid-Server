@@ -26,6 +26,11 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "", // Default avatar URL or leave it empty
     },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // Allow null values
+    },
   },
   {
     timestamps: true,

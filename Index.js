@@ -7,9 +7,12 @@ import todoRouter from "./modules/planner/index.js";
 import spellingGameRouter from "./modules/spellingGame/index.js";
 import phonicsRoutes from "./modules/phonicsGame/index.js";
 import audioRoutes from "./modules/audio/index.js";
+import adminRouter from "./modules/admin/index.js";
+import contentRouter from './modules/content/index.js';
 import axios from "axios";
 import bodyParser from "body-parser";
-
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 const app = express();
@@ -18,17 +21,26 @@ app.use(express.json());
 app.use(
   cors({
     origin: "*", // Allow requests from frontend
-    methods: "GET,POST",
+    methods: "GET,POST,PUT,DELETE",
     allowedHeaders: "Content-Type, Authorization",
   })
 );
+
+const __filename = fileURLToPath(import.meta.url);
+app.use(express.static(path.join(__dirname, 'public'))); // Add this line
+
+
+app.use(bodyParser.json());
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+app.use("/api/admin", adminRouter);
 app.use("/user", userRouter);
 app.use("/planner", todoRouter);
 app.use("/spelling", spellingGameRouter);
 app.use("/phonics", phonicsRoutes)
 app.use("/audio", audioRoutes);
+app.use('/api/content', contentRouter);
+
 console.log("Audio routes mounted at /audio");
-app.use(bodyParser.json());
 
 
 app.get("/", (req, res) => {
