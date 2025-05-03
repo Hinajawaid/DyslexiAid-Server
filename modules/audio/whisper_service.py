@@ -1,10 +1,12 @@
 from fastapi import FastAPI, File, UploadFile
-import whisper
+# import whisper
+import whisper_timestamped as whisper
 import shutil
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-model = whisper.load_model("base")
+# model = whisper.load_model("base")
+model = whisper.load_model("tiny", device="cpu")
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,8 +16,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+
 @app.get("/")
 def read_root():
+    
     return {"message": "Whisper Service is Running"}
 
 @app.post("/transcribe/")
@@ -25,5 +30,9 @@ async def transcribe_audio(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    result = model.transcribe(file_path)
-    return {"transcription": result["text"]}
+    result = model.transcribe(model, file_path)
+    print("result")
+    print(result)
+    import json
+    print(json.dumps(result, indent = 2, ensure_ascii = False))
+    return {"transcription": result}

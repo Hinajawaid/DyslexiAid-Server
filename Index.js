@@ -8,11 +8,15 @@ import spellingGameRouter from "./modules/spellingGame/index.js";
 import phonicsRoutes from "./modules/phonicsGame/index.js";
 import audioRoutes from "./modules/audio/index.js";
 import adminRouter from "./modules/admin/index.js";
-import contentRouter from './modules/content/index.js';
+import contentRouter from "./modules/content/index.js";
+import resourcesRouter from "./modules/resources/index.js";
+import gameRouter from "./modules/game/index.js";
 import axios from "axios";
 import bodyParser from "body-parser";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from "path";
+import { fileURLToPath } from "url";
+
+import textToSpeechRouter from "./modules/textToSpeech/index.js";
 
 dotenv.config();
 const app = express();
@@ -27,36 +31,41 @@ app.use(
 );
 
 const __filename = fileURLToPath(import.meta.url);
-app.use(express.static(path.join(__dirname, 'public'))); // Add this line
-
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, "public"))); // Add this line
 
 app.use(bodyParser.json());
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
 app.use("/api/admin", adminRouter);
 app.use("/user", userRouter);
 app.use("/planner", todoRouter);
 app.use("/spelling", spellingGameRouter);
-app.use("/phonics", phonicsRoutes)
+app.use("/phonics", phonicsRoutes);
 app.use("/audio", audioRoutes);
-app.use('/api/content', contentRouter);
+app.use("/api/content", contentRouter);
 
+app.use("/game", gameRouter);
 console.log("Audio routes mounted at /audio");
+app.use("/resources", resourcesRouter);
+app.use(bodyParser.json());
 
+app.use("/textToSpeech", textToSpeechRouter);
+app.use("/uploads", express.static("uploads"));
 
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-async function testFastAPI() {
-  try {
-    const response = await axios.get("http://172.20.5.197:4000/");
-    console.log(response.data);
-  } catch (error) {
-    console.error("Error connecting to FastAPI:", error.message);
-  }
-}
+// async function testFastAPI() {
+//   try {
+//     const response = await axios.get("http://192.168.1.75:4000/");
+//     console.log(response.data);
+//   } catch (error) {
+//     console.error("Error connecting to FastAPI:", error.message);
+//   }
+// }
 
-testFastAPI();
+// testFastAPI();
 
 const port = process.env.PORT || 4000;
 const db_url = process.env.MONGODB_URL;
@@ -74,3 +83,8 @@ mongoose
   .catch((error) => {
     console.log(error);
   });
+
+// mongoose
+//   .connect(db_url)
+//   .then(() => console.log("Connected to MongoDB"))
+//   .catch((err) => console.error("MongoDB connection error:", err));

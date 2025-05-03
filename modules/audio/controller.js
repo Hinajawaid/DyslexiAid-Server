@@ -18,10 +18,9 @@ export const transcribeAudio = async (req, res) => {
 
     const formData = new FormData();
     formData.append("file", fs.createReadStream(filePath));
-    console.log("Form data:", formData);
 
     const whisperResponse = await axios.post(
-      "http://192.168.1.8:5000/transcribe/",
+      "http://192.168.1.75:5000/transcribe/",
       formData,
       { headers: formData.getHeaders() }
     );
@@ -34,7 +33,9 @@ export const transcribeAudio = async (req, res) => {
     // const newTranscription = new Transcription({ text: transcriptionText });
     // await newTranscription.save();
 
-    res.json({ transcription: transcriptionText });
+    res.json({ transcription: whisperResponse.data.transcription });
+
+    // res.json({ transcription: transcriptionText });
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ error: "Transcription failed" });
@@ -119,8 +120,8 @@ export const deleteFile = async (req, res) => {
     }
 
     console.log("Deleting files:", file.filePath, file.pdfPath);
-    
-     // Ensure files exist before deleting
+
+    // Ensure files exist before deleting
     if (fs.existsSync(file.filePath)) fs.unlinkSync(file.filePath);
     if (fs.existsSync(file.pdfPath)) fs.unlinkSync(file.pdfPath);
 
@@ -128,10 +129,70 @@ export const deleteFile = async (req, res) => {
     console.log("File deleted successfully");
 
     res.json({ success: true, message: "File deleted successfully" });
-
   } catch (error) {
-    console.error("Error deleting file:", error);  // Log detailed error
-    res.status(500).json({ error: "Error deleting file", details: error.message });
+    console.error("Error deleting file:", error); // Log detailed error
+    res
+      .status(500)
+      .json({ error: "Error deleting file", details: error.message });
   }
 };
 
+// Get all saved transcriptions
+// export const getTranscriptions = async (req, res) => {
+//   try {
+//     const transcriptions = await Transcription.find().sort({ timestamp: -1 }); // Fetch latest first
+//     res.json(transcriptions);
+//   } catch (error) {
+//     console.error("Error fetching transcriptions:", error.message);
+//     res.status(500).json({ error: "Failed to fetch transcriptions" });
+//   }
+// };
+
+// let gfs;
+// conn.once("open", () => {
+//   gfs = Grid(conn.db, mongoose.mongo);
+//   gfs.collection("pdfs");
+// });
+
+// // Set up storage for PDFs
+// const storage = new GridFsStorage({
+//   url: mongoURI,
+//   file: (req, file) => {
+//     return {
+//       bucketName: "pdfs",
+//       filename: `${Date.now()}-${file.originalname}`,
+//     };
+//   },
+// });
+
+// const upload = multer({ storage });
+
+// export const savePDF = (req, res) => {
+//   try {
+//     res.json({ message: "File uploaded successfully!", file: req.file });
+//   } catch (error) {
+//     res.status(500).json({ error: "Failed to save file" });
+//   }
+// };
+
+// export const getSavedNotes = async (req, res) => {
+//   try {
+//     const files = await gfs.files.find().toArray();
+//     res.json(files);
+//   } catch (error) {
+//     res.status(500).json({ error: "Failed to retrieve notes" });
+//   }
+// };
+
+// export const getFile = async (req, res) => {
+//   try {
+//     const file = await gfs.files.findOne({ filename: req.params.filename });
+//     if (!file) {
+//       return res.status(404).json({ error: "File not found" });
+//     }
+//     const readStream = gfs.createReadStream(file.filename);
+//     readStream.pipe(res);
+//   } catch (error) {
+//     res.status(500).json({ error: "Failed to retrieve file" });
+//   }
+// };

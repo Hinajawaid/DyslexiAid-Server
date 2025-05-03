@@ -18,10 +18,10 @@ const userSchema = mongoose.Schema(
     token: {
       type: String,
     },
-    age:{
-        type:Number,
-        default:0,        
-    },     
+    age: {
+      type: Number,
+      default: 0,
+    },
     profilePicture: {
       type: String,
       default: "", // Default avatar URL or leave it empty

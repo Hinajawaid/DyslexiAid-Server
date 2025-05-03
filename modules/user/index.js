@@ -38,7 +38,7 @@ router.post("/register", signUpController);
 router.post("/login", loginController);
 
 //route to logout
-router.post("/logout",auth, logoutController);
+router.post("/logout", auth, logoutController);
 
 router.post('/google', googleSignInController); // Add Google Sign-In route
 

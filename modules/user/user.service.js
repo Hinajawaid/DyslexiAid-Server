@@ -137,6 +137,8 @@ export const signUp = async (name, email, password) => {
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+    console.log("Original Password:", password);
+    console.log("Hashed Password:", hashedPassword);
 
     const newUser = new User({
       name,
@@ -169,6 +171,48 @@ export const signUp = async (name, email, password) => {
     };
   }
 };
+
+// export const signUp = async (name, email, password) => {
+//   try {
+//     const oldUser = await User.findOne({ email });
+//     if (oldUser) return { error: true, message: "Email already Exists" };
+
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+
+//     const newUser = new User({
+//       name,
+//       email,
+//       password: hashedPassword,
+//     });
+
+//     await newUser.save();
+
+//     const token = jwt.sign(
+//       { email: newUser.email, id: newUser._id },
+//       process.env.SECRET
+//     );
+
+//     newUser.token = token;
+//     await newUser.save();
+
+//     // Return both token and user data
+//     return {
+//       token,
+//       user: {
+//         _id: newUser._id,
+//         name: newUser.name,
+//         email: newUser.email,
+//         // Add other fields as needed
+//       }
+//     };
+//   } catch (error) {
+//     return {
+//       error: true,
+//       message: error.message,
+//     };
+//   }
+// };
 
 //login service
 
