@@ -1,20 +1,19 @@
 import {
-    signUp,
-    loginService,
-    googleSignInService,
-    fetchInfo, 
-    findUserById,
-    updateUserDetails, 
-    deleteUserById,
-    logoutService
-  } from "./user.service.js";
+  signUp,
+  loginService,
+  googleSignInService,
+  fetchInfo,
+  findUserById,
+  updateUserDetails,
+  deleteUserById,
+  logoutService,
+} from "./user.service.js";
 
-import { OAuth2Client } from 'google-auth-library';
-import User from './user.model.js';
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import { OAuth2Client } from "google-auth-library";
+import User from "./user.model.js";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
-
 
 dotenv.config();
 
@@ -51,11 +50,11 @@ export const signUpController = async (req, res) => {
   const { name, email, password } = req.body;
   try {
     const result = await signUp(name, email, password);
-    
+
     if (result.error) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: true,
-        message: result.message 
+        message: result.message,
       });
     }
 
@@ -66,14 +65,14 @@ export const signUpController = async (req, res) => {
       user: {
         _id: result.user._id,
         name: result.user.name,
-        email: result.user.email
-      }
+        email: result.user.email,
+      },
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: true,
-      message: error.message 
+      message: error.message,
     });
   }
 };
@@ -83,20 +82,20 @@ export const signUpController = async (req, res) => {
   export const loginController = async (req, res) => {
     console.log("Login endpoint hit:", req.body);  // Add this log
 
-    const { email, password } = req.body;
-    try {
-      const token = await loginService(email, password);
-      if (token.error) {
-        return res.status(400).json({ message: "Invalid credentials" });
-      }
-      return res
-        .status(200)
-        .json({ message: "User logged in successfully", token });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ message: error.message });
+  const { email, password } = req.body;
+  try {
+    const token = await loginService(email, password);
+    if (token.error) {
+      return res.status(400).json({ message: "Invalid credentials" });
     }
-  };
+    return res
+      .status(200)
+      .json({ message: "User logged in successfully", token });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 export const getUserInfo = async (req, res) => {
   try {
@@ -212,71 +211,88 @@ export const logoutController = async (req, res) => {
   }
 };
 
-  export const updateProfilePicture = async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ status: false, message: "No profile picture provided" });
-      }
-  
-      const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-      
-      const updatedUser = await User.findByIdAndUpdate(
-        req.user.id,
-        { profilePicture: imageUrl },
-        { new: true }
-      );
-  
-      res.status(200).json({ status: true, message: "Profile picture updated", user: updatedUser });
-    } catch (error) {
-      res.status(500).json({ status: false, message: "Error updating profile picture", error: error.message });
+export const updateProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ status: false, message: "No profile picture provided" });
     }
-  };
-  
 
-  export const getAllUsers = async (req, res) => {
-    try {
-      const users = await User.find().select("-password -token");
-      res.status(200).json({ status: true, users });
-    } catch (error) {
-      console.error("Get all users error:", error);
-      res.status(400).json({ status: false, message: error.message });
+    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${
+      req.file.filename
+    }`;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { profilePicture: imageUrl },
+      { new: true }
+    );
+
+    res
+      .status(200)
+      .json({
+        status: true,
+        message: "Profile picture updated",
+        user: updatedUser,
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        status: false,
+        message: "Error updating profile picture",
+        error: error.message,
+      });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password -token");
+    res.status(200).json({ status: true, users });
+  } catch (error) {
+    console.error("Get all users error:", error);
+    res.status(400).json({ status: false, message: error.message });
+  }
+};
+
+export const adminUpdateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, age, profilePicture } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { name, email, age, profilePicture },
+      { new: true }
+    ).select("-password -token");
+
+    if (!updatedUser) {
+      return res.status(404).json({ status: false, message: "User not found" });
     }
-  };
-  
-  export const adminUpdateUser = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { name, email, age, profilePicture } = req.body;
-      
-      const updatedUser = await User.findByIdAndUpdate(
-        id,
-        { name, email, age, profilePicture },
-        { new: true }
-      ).select("-password -token");
-      
-      if (!updatedUser) {
-        return res.status(404).json({ status: false, message: "User not found" });
-      }
-      
-      res.status(200).json({ status: true, user: updatedUser });
-    } catch (error) {
-      console.error("Admin update user error:", error);
-      res.status(400).json({ status: false, message: error.message });
+
+    res.status(200).json({ status: true, user: updatedUser });
+  } catch (error) {
+    console.error("Admin update user error:", error);
+    res.status(400).json({ status: false, message: error.message });
+  }
+};
+
+export const adminDeleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ status: false, message: "User not found" });
     }
-  };
-  
-  export const adminDeleteUser = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const deletedUser = await User.findByIdAndDelete(id);
-      
-      if (!deletedUser) {
-        return res.status(404).json({ status: false, message: "User not found" });
-      }
-      
-      res.status(200).json({ status: true, message: "User deleted successfully" });
-    } catch (error) {
-      console.error("Admin delete user error:", error);
-      res.status(400).json({ status: false, message: error.message });
-    }
-  };
+
+    res
+      .status(200)
+      .json({ status: true, message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Admin delete user error:", error);
+    res.status(400).json({ status: false, message: error.message });
+  }
+};

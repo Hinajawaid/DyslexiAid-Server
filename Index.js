@@ -11,6 +11,9 @@ import adminRouter from "./modules/admin/index.js";
 import contentRouter from "./modules/content/index.js";
 import resourcesRouter from "./modules/resources/index.js";
 import gameRouter from "./modules/game/index.js";
+import summaryRouter from "./modules/Summary/index.js";
+import phonicsGameRouter from "./modules/phonics/index.js";
+import activityLogRouter from "./modules/activityLog/index.js";
 import axios from "axios";
 import bodyParser from "body-parser";
 import path from "path";
@@ -46,10 +49,13 @@ app.use("/spelling", spellingGameRouter);
 app.use("/phonics", phonicsRoutes);
 app.use("/audio", audioRoutes);
 app.use("/api/content", contentRouter);
+app.use("/phonicsGame", phonicsGameRouter);
 app.use('/mindmap', mindmapRouter);
 // app.use("/game", gameRouter);
+app.use("/summary", summaryRouter);
 console.log("Audio routes mounted at /audio");
 app.use("/resources", resourcesRouter);
+app.use("/activityLog", activityLogRouter);
 app.use(bodyParser.json());
 
 app.use("/textToSpeech", textToSpeechRouter);
@@ -61,7 +67,7 @@ app.get("/", (req, res) => {
 
 // async function testFastAPI() {
 //   try {
-//     const response = await axios.get("http://192.168.1.75:4000/");
+//     const response = await axios.get("http://172.20.10.3:4000/");
 //     console.log(response.data);
 //   } catch (error) {
 //     console.error("Error connecting to FastAPI:", error.message);
