@@ -1,10 +1,6 @@
-import { addGameScore, getGames } from "./game.service.js";
+import { addPhonicsGameScore, getPhonicsGames } from "./phonics.service.js";
 
-export const addgameController = async (req, res) => {
-  // const { level, score, totalQuestion, wrongWordsArr, correctWordsArr } =
-  //   req.body;
-  // console.log(response);
-  // res.send(response);
+export const addPhonicsgameController = async (req, res) => {
   try {
     const { correctWordsArr, level, score, totalQuestion, wrongWordsArr } =
       req.body;
@@ -18,7 +14,7 @@ export const addgameController = async (req, res) => {
     const userId = req.user.id;
     console.log("User ID from token:", userId);
 
-    const response = await addGameScore(
+    const response = await addPhonicsGameScore(
       level,
       score,
       totalQuestion,
@@ -33,7 +29,7 @@ export const addgameController = async (req, res) => {
   }
 };
 
-export const getgameController = async (req, res) => {
+export const getPhonicsgameController = async (req, res) => {
   try {
     const userId = req.user.id; // <-- Extract from decoded token
 
@@ -44,15 +40,15 @@ export const getgameController = async (req, res) => {
       });
     }
 
-    const games = await getGames(userId);
-    console.log("Game data retrieved successfully", games);
+    const Phonicsgames = await getPhonicsGames(userId);
+    console.log("Game data retrieved successfully", Phonicsgames);
     res.status(200).json({
       success: true,
-      message: "Game data retrieved successfully",
-      data: games,
+      message: "Phonics Game data retrieved successfully",
+      data: Phonicsgames,
     });
   } catch (error) {
-    console.error("Error in getgameController:", error);
+    console.error("Error in getPhonicsGameController:", error);
     res.status(500).json({
       success: false,
       message: "Failed to fetch game data",
