@@ -8,7 +8,7 @@ export const sendAudioToWhisper = async (filePath) => {
   formData.append("file", fs.createReadStream(filePath));
 
   const response = await axios.post(
-    "http://192.168.1.75:5000/transcribe/",
+    "http://172.20.10.3:5000/transcribe/",
     formData,
     {
       headers: formData.getHeaders(),

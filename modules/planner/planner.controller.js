@@ -1,4 +1,9 @@
-import { addTodo, fetchTodos, markTodoComplete, deleteUserTodo  } from "./planner.service.js";
+import {
+  addTodo,
+  fetchTodos,
+  markTodoComplete,
+  deleteUserTodo,
+} from "./planner.service.js";
 import Todo from "./planner.model.js";
 
 export const createTodoController = async (req, res) => {
@@ -28,10 +33,8 @@ export const createTodoController = async (req, res) => {
 };
 
 export const getTodoController = async (req, res) => {
-
-    const userId = req.user.id;
-    console.log("User ID from token:", userId);
-
+  const userId = req.user.id;
+  console.log("User ID from token:", userId);
 
   try {
     const response = await fetchTodos(userId);
@@ -46,9 +49,8 @@ export const getTodoController = async (req, res) => {
 export const markTodoDeleteController = async (req, res) => {
   const taskId = req.params.taskId;
 
-    const userId = req.user.id;
-    console.log("User ID from token:", userId);
-
+  const userId = req.user.id;
+  console.log("User ID from token:", userId);
 
   try {
     const response = await deleteUserTodo(taskId);
@@ -60,22 +62,23 @@ export const markTodoDeleteController = async (req, res) => {
 
 export const markTodoCompleteController = async (req, res) => {
   const { taskId } = req.params;
-  const userId = req.user.id;  // Extracted user ID from token
+  const userId = req.user.id; // Extracted user ID from token
 
   try {
-      const todo = await Todo.findOneAndUpdate(
-          { _id: taskId, userId },
-          { completed: true },
-          { new: true }
-      );
+    const todo = await Todo.findOneAndUpdate(
+      { _id: taskId, userId },
+      { completed: true },
+      { new: true }
+    );
 
-      if (!todo) {
-          return res.status(404).json({ status: false, message: "Todo not found or unauthorized" });
-      }
+    if (!todo) {
+      return res
+        .status(404)
+        .json({ status: false, message: "Todo not found or unauthorized" });
+    }
 
-      res.status(200).json({ status: true, todo });
+    res.status(200).json({ status: true, todo });
   } catch (error) {
-      res.status(400).json({ status: false, message: error.message });
+    res.status(400).json({ status: false, message: error.message });
   }
 };
-

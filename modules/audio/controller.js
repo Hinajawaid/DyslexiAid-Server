@@ -20,7 +20,7 @@ export const transcribeAudio = async (req, res) => {
     formData.append("file", fs.createReadStream(filePath));
 
     const whisperResponse = await axios.post(
-      "http://192.168.1.75:5000/transcribe/",
+      "http://172.20.10.3:5000/transcribe/",
       formData,
       { headers: formData.getHeaders() }
     );
