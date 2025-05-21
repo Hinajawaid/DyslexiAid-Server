@@ -6,12 +6,19 @@ const resourcesSchema = mongoose.Schema(
       type: String,
       required: [true, "tile is required"],
     },
+    image: {
+      type: String,
+      required: [true, "image is required"],
+    },
     description: {
       type: String,
     },
-    imageUrl: {
+    headingId: {
       type: String,
-      required: [true, "imageurl is required"],
+    },
+    link: {
+      type: String,
+      required: [true, "link is required"],
     },
   },
   {

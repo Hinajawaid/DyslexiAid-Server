@@ -23,57 +23,28 @@ export const googleSignInController = async (req, res) => {
   try {
     const authToken = await googleSignInService(token);
     if (authToken.error) {
-      return res.status(400).json({ message: authToken.message });
+      return res.status(400).json({ error: true, message: authToken.message });
     }
-    return res
-      .status(200)
-      .json({ message: "User logged in successfully", token: authToken });
+
+    // Find user to include in response
+    const decoded = jwt.verify(authToken, process.env.SECRET);
+    const user = await User.findById(decoded.id).select('name email _id');
+
+    return res.status(200).json({
+      success: true,
+      token: authToken,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email
+      }
+    });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: error.message });
+    console.error("Google Sign-In Controller Error:", error);
+    return res.status(500).json({ error: true, message: "Server error during Google Sign-In" });
   }
 };
 
-// const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-// export const googleSignInController = async (req, res) => {
-//   const { accessToken } = req.body;
-
-//   try {
-//     const ticket = await client.verifyIdToken({
-//       idToken: accessToken,
-//       audience: process.env.GOOGLE_CLIENT_ID,
-//     });
-
-//     const payload = ticket.getPayload();
-//     const { email, name, picture } = payload;
-
-//     let user = await User.findOne({ email });
-
-//     if (!user) {
-//       user = new User({
-//         name,
-//         email,
-//         profilePicture: picture,
-//         googleId: payload.sub,
-//       });
-//       await user.save();
-//     }
-
-//     const token = jwt.sign(
-//       { email: user.email, id: user._id },
-//       process.env.SECRET
-//     );
-
-//     user.token = token;
-//     await user.save();
-
-//     res.status(200).json({ message: "Google Sign-In successful", token });
-//   } catch (error) {
-//     console.error("Google Sign-In Error:", error);
-//     res.status(500).json({ message: "An error occurred during Google Sign-In" });
-//   }
-// };
 
 //unified and working
 export const signUpController = async (req, res) => {
@@ -107,51 +78,6 @@ export const signUpController = async (req, res) => {
   }
 };
 
-// //before admin
-//   //signup controller
-//   export const signUpController = async (req, res) => {
-//     const { name, email, password } = req.body;
-//     try {
-//       const token = await signUp(name, email, password);
-//       if (token.error) {
-//         return res.status(400).json({ message: token.message });
-//       }
-//       return res
-//         .status(200)
-//         .json({ message: "User created successfully", token });
-//     } catch (error) {
-//       console.log(error);
-//       return res.status(500).json({ message: error.message });
-//     }
-//   };
-  
-//works for admin
-  // export const signUpController = async (req, res) => {
-  //   const { name, email, password } = req.body;
-  //   try {
-  //     const result = await signUp(name, email, password);
-      
-  //     if (result.error) {
-  //       return res.status(400).json({ message: result.message });
-  //     }
-  
-  //     // Return both token and user data
-  //     return res.status(201).json({ 
-  //       message: "User created successfully", 
-  //       token: result.token,
-  //       user: {
-  //         _id: result.user._id,
-  //         name: result.user.name,
-  //         email: result.user.email,
-  //         // Add other fields you need in frontend
-  //       }
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //     return res.status(500).json({ message: error.message });
-  //   }
-  // };
-  
   //login controller
   
   export const loginController = async (req, res) => {

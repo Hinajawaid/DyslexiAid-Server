@@ -8,37 +8,40 @@ import mongoose from "mongoose";
 
 export const transcribeAudio = async (req, res) => {
   try {
-    console.log("Received file:", req.file); // Debug the received file
+    console.log("Received file:", req.file);
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
     const filePath = req.file.path;
-    console.log("File path:", filePath); // Debug the file path
+    console.log("File path:", filePath);
 
     const formData = new FormData();
     formData.append("file", fs.createReadStream(filePath));
 
     const whisperResponse = await axios.post(
-      "http://192.168.1.75:5000/transcribe/",
+      "http://172.20.10.5:5000/transcribe/",
       formData,
       { headers: formData.getHeaders() }
     );
 
-    console.log("whisper", whisperResponse);
+    console.log("Whisper response:", whisperResponse.data);
 
-    const transcriptionText = whisperResponse.data.transcription;
-    console.log("Transcription:", transcriptionText); // Debug the transcription
+    // Extract the 'text' field from the nested 'transcription' object
+    const transcriptionText = whisperResponse.data.transcription?.text;
+    if (!transcriptionText) {
+      throw new Error("No transcription text found in Whisper response");
+    }
 
-    // const newTranscription = new Transcription({ text: transcriptionText });
-    // await newTranscription.save();
+    console.log("Transcription:", transcriptionText);
 
-    res.json({ transcription: whisperResponse.data.transcription });
+    // Optionally, clean up the temporary audio file
+    fs.unlinkSync(filePath);
 
-    // res.json({ transcription: transcriptionText });
+    res.json({ transcription: transcriptionText });
   } catch (error) {
     console.error("Error:", error.message);
-    res.status(500).json({ error: "Transcription failed" });
+    res.status(500).json({ error: "Transcription failed", details: error.message });
   }
 };
 

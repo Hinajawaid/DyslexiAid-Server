@@ -1,22 +1,19 @@
-// spellingGame.route.js
-import express from "express";
-import fileUpload from "express-fileupload";
-import { auth } from "../../middleware/auth.js";
-import {
-  saveSpellingData,
-  getSpellingDataByLevel,
-} from "./spellingGame.controller.js";
+import express from 'express';
+import { savespellingData, getDataGame, getspellingDataByLevel, getLetterData, deleteWord, updateWord, deleteLevel, getLevels, updateLevel } from './spellingGame.controller.js';
+import multer from 'multer';
 
+const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
 
-// Configure express-fileupload middleware
-router.use(
-  fileUpload({
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
-    createParentPath: true,
-  })
-);
-router.post("/save", saveSpellingData);
-router.get("/getData/:level", getSpellingDataByLevel);
+// Routes for spelling game
+router.post('/save', upload.fields([{ name: 'audioFiles' }]), savespellingData);
+router.get('/getData/:level', getspellingDataByLevel);
+router.get('/getDataGame/:level', getDataGame);
+router.get('/letter/:letter', getLetterData);
+router.delete('/deleteWord/:id/:wordIndex', deleteWord);
+router.put('/updateWord/:id/:wordIndex', upload.single('audioFile'), updateWord);
+router.delete('/deleteLevel/:id', deleteLevel);
+router.get('/levels', getLevels);
+router.post('/updateLevel', upload.fields([{ name: 'audioFiles' }]), updateLevel);
 
 export default router;
