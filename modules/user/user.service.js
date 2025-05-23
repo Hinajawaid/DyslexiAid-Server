@@ -9,122 +9,62 @@ import { OAuth2Client } from "google-auth-library";
 dotenv.config();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+console.log("Backend Google Client ID:", process.env.GOOGLE_CLIENT_ID);
 
-export const googleSignInService = async (googleToken) => {
+// Function to generate a random secure password
+const generateRandomPassword = () => {
+  return crypto.randomBytes(16).toString("hex"); // Generates a 32-character random string
+};
+
+export const googleSignInService = async (token) => {
+  console.log("Received Google Token:", token);
   try {
+    // Verify the Google ID token
     const ticket = await client.verifyIdToken({
-      idToken: googleToken,
+      idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
+
     const payload = ticket.getPayload();
-    const { email, name, picture } = payload;
+    const { sub: googleId, email, name, picture } = payload;
 
-    let user = await User.findOne({ email });
-
+    // Check if user exists with googleId or email
+    let user = await User.findOne({ googleId });
     if (!user) {
-      user = new User({
-        name,
-        email,
-        profilePicture: picture,
-        googleId: payload.sub,
-      });
+      user = await User.findOne({ email });
+      if (user) {
+        // Link Google account to existing user
+        user.googleId = googleId;
+        user.profilePicture = picture;
+      } else {
+        // Create new user without password
+        user = new User({
+          name,
+          email,
+          googleId,
+          profilePicture: picture,
+          // Explicitly omit password
+        });
+      }
       await user.save();
     }
 
-    const token = jwt.sign(
+    // Generate JWT token
+    const jwtToken = jwt.sign(
       { email: user.email, id: user._id },
-      process.env.SECRET
+      process.env.SECRET,
+      { expiresIn: "1h" }
     );
 
-    user.token = token;
+    user.token = jwtToken;
     await user.save();
 
-    return token;
+    return jwtToken;
   } catch (error) {
-    return { error: true, message: error.message };
+    console.error("Google Sign-In Service Error:", error);
+    return { error: true, message: "Invalid Google token or server error" };
   }
 };
-
-// //before admin
-// //signup service
-// export const signUp = async (name, email, password) => {
-//   try {
-//     const oldUser = await User.findOne({ email });
-//     if (oldUser) return { error: true, message: "Email already Exists" };
-
-//     // if (oldUser) return { error: "Email already Exists" };
-//     const salt = await bcrypt.genSalt(10);
-//     const hashedPassword = await bcrypt.hash(password, salt);
-//     console.log("Original Password:", password);
-// console.log("Hashed Password:", hashedPassword);
-
-//     const newUser = new User({
-//       name,
-//       email,
-//       password: hashedPassword,
-//     });
-//     await newUser.save();
-
-//     const token = jwt.sign(
-//       { email: newUser.email, id: newUser._id },
-//       process.env.SECRET
-//     );
-
-//     newUser.token = token;
-//     await newUser.save();
-
-//     return token;
-//   } catch (error) {
-//     return {
-//       error: true,
-//       message: error.message,
-//     };
-//   }
-// };
-
-
-//works admin
-// export const signUp = async (name, email, password) => {
-//   try {
-//     const oldUser = await User.findOne({ email });
-//     if (oldUser) return { error: true, message: "Email already Exists" };
-
-//     const salt = await bcrypt.genSalt(10);
-//     const hashedPassword = await bcrypt.hash(password, salt);
-
-//     const newUser = new User({
-//       name,
-//       email,
-//       password: hashedPassword,
-//     });
-
-//     await newUser.save();
-
-//     const token = jwt.sign(
-//       { email: newUser.email, id: newUser._id },
-//       process.env.SECRET
-//     );
-
-//     newUser.token = token;
-//     await newUser.save();
-
-//     // Return both token and user data
-//     return {
-//       token,
-//       user: {
-//         _id: newUser._id,
-//         name: newUser.name,
-//         email: newUser.email,
-//         // Add other fields as needed
-//       }
-//     };
-//   } catch (error) {
-//     return {
-//       error: true,
-//       message: error.message,
-//     };
-//   }
-// };
 
 //unified and working
 export const signUp = async (name, email, password) => {
@@ -171,49 +111,6 @@ export const signUp = async (name, email, password) => {
     };
   }
 };
-
-// export const signUp = async (name, email, password) => {
-//   try {
-//     const oldUser = await User.findOne({ email });
-//     if (oldUser) return { error: true, message: "Email already Exists" };
-
-//     const salt = await bcrypt.genSalt(10);
-//     const hashedPassword = await bcrypt.hash(password, salt);
-
-//     const newUser = new User({
-//       name,
-//       email,
-//       password: hashedPassword,
-//     });
-
-//     await newUser.save();
-
-//     const token = jwt.sign(
-//       { email: newUser.email, id: newUser._id },
-//       process.env.SECRET
-//     );
-
-//     newUser.token = token;
-//     await newUser.save();
-
-//     // Return both token and user data
-//     return {
-//       token,
-//       user: {
-//         _id: newUser._id,
-//         name: newUser.name,
-//         email: newUser.email,
-//         // Add other fields as needed
-//       }
-//     };
-//   } catch (error) {
-//     return {
-//       error: true,
-//       message: error.message,
-//     };
-//   }
-// };
-
 //login service
 
 export const loginService = async (email, password) => {

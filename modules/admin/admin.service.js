@@ -86,11 +86,34 @@ console.log("Stored Hashed Password:", user.password); // Password from database
 // user.service.js
 export const logoutService = async (userId) => {
   try {
-    // Perform any necessary cleanup (e.g., invalidate token, clear sessions, etc.)
-    // For now, we'll just return a success message
+    const user = await Admin.findById(userId);
+    if (!user) {
+      return { status: false, message: "User not found" };
+    }
+    user.token = null;
+    await user.save();
     return { status: true, message: "Logged out successfully" };
   } catch (error) {
     console.error("Logout error:", error);
     return { status: false, message: "Server error" };
   }
+};
+
+export const updateAdminDetails = async (
+  userId,
+  currentPassword,
+  newPassword,
+) => {
+  const user = await Admin.findById(userId);
+  if (!user) return { status: false, message: "User not found" };
+
+  if (currentPassword && newPassword) {
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if (!match) return { status: false, message: "Incorrect current password" };
+
+    user.password = await bcrypt.hash(newPassword, 10);
+  }
+
+  await user.save();
+  return { status: true, message: "Profile updated successfully" };
 };

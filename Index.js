@@ -18,18 +18,21 @@ import axios from "axios";
 import bodyParser from "body-parser";
 import path from "path";
 import { fileURLToPath } from "url";
+import mindmapRouter from "./modules/mindmap/index.js"
 
 import textToSpeechRouter from "./modules/textToSpeech/index.js";
 
 dotenv.config();
 const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(
   cors({
     origin: "*", // Allow requests from frontend
     methods: "GET,POST,PUT,DELETE",
     allowedHeaders: "Content-Type, Authorization",
+    credentials: true
   })
 );
 
@@ -47,7 +50,7 @@ app.use("/phonics", phonicsRoutes);
 app.use("/audio", audioRoutes);
 app.use("/api/content", contentRouter);
 app.use("/phonicsGame", phonicsGameRouter);
-
+app.use('/mindmap', mindmapRouter);
 app.use("/game", gameRouter);
 app.use("/summary", summaryRouter);
 console.log("Audio routes mounted at /audio");

@@ -1,6 +1,7 @@
 import { addGameScore, getGames } from "./game.service.js";
 
 export const addgameController = async (req, res) => {
+  console.log("inside addgameController");
   // const { level, score, totalQuestion, wrongWordsArr, correctWordsArr } =
   //   req.body;
   // console.log(response);

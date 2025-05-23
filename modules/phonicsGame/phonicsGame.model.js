@@ -3,21 +3,21 @@ import mongoose from "mongoose";
 const phonicsGameSchema = mongoose.Schema(
   {
     words: {
-      type: [String], // Array of strings for words
-      required: true, // Makes this field mandatory
+      type: [String], 
+      required: true, 
     },
     audioFiles: {
-      type: [Buffer], // Array of binary audio files stored as buffers
+      type: [Buffer], 
       required: true,
     },
     level: {
-      type: Number, // A number representing the difficulty level
-      required: true, // Makes this field mandatory
-      min: 1, // Ensure level is at least 1
+      type: Number, 
+      required: true, 
+      min: 1, 
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 
