@@ -8,8 +8,9 @@ import {
 } from "./resources.service.js";
 
 export const getResourcesController = async (req, res) => {
+  console.log("inside getResourcesController by heading");
   try {
-    const resources = await getResourcesById(req.body.headingId);
+    const resources = await getResourcesById(req.body.id);
     res.json(resources);
   } catch (error) {
     res.status(500).json({ message: error.message });

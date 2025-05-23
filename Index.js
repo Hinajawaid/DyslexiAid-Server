@@ -51,7 +51,7 @@ app.use("/audio", audioRoutes);
 app.use("/api/content", contentRouter);
 app.use("/phonicsGame", phonicsGameRouter);
 app.use('/mindmap', mindmapRouter);
-// app.use("/game", gameRouter);
+app.use("/game", gameRouter);
 app.use("/summary", summaryRouter);
 console.log("Audio routes mounted at /audio");
 app.use("/resources", resourcesRouter);

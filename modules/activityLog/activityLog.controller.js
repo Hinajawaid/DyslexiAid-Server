@@ -9,8 +9,8 @@ export const getactivityLogController = async (req, res) => {
   console.log("inside activityLog controller");
 
   const userId = req.user?.id;
-  const start = "20250513T00";
-  const end = "20250513T23";
+  const start = "20250521T00";
+  const end = "20250522T23";
   // const start = new Date("2025-05-12T00");
   // const end = new Date("2025-05-13T23");
 

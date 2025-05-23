@@ -7,7 +7,7 @@ export const generateMindMap = async (req, res) => {
         return res.status(400).json({ error: 'Text is required' });
       }
       console.log('Sending text to Flask:', text);
-      const response = await fetch('https://420c-34-42-231-115.ngrok-free.app/generate-mind-map', {
+      const response = await fetch('https://04c8-35-238-89-204.ngrok-free.app/generate-mind-map', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
